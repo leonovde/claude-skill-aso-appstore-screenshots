@@ -1,11 +1,11 @@
 # Benefit Discovery
 
-> Extracts 3 high-converting benefit headlines from app information.
+> Extracts 3–5 high-converting benefit headlines from app information.
 > Referenced by: [00-SYSTEM.md](00-SYSTEM.md) · Feeds into: [03-GENERATION-PROMPT.md](03-GENERATION-PROMPT.md)
 
 ## What You Need
 
-Any combination of: app description, feature list, App Store listing, README, screenshots, or the app itself. The more context, the better the benefits.
+Any combination of: app description, feature list, Google Play listing, README, screenshots, or the app itself. The more context, the better the benefits.
 
 ## How to Extract Benefits
 
@@ -16,9 +16,9 @@ From the provided information, determine:
 - **Target audience** — Who is this for? (age, interests, skill level)
 - **Unique value** — What makes it different from competitors?
 - **Problems solved** — What pain does it relieve?
-- **#1 download reason** — Why would someone tap "Get"?
+- **#1 install reason** — Why would someone tap "Install"?
 
-### Step 2: Draft 3 Benefit Headlines
+### Step 2: Draft 3–5 Benefit Headlines
 
 Each benefit MUST follow this format:
 
@@ -44,7 +44,7 @@ Each benefit MUST follow this format:
 For each benefit, ask:
 - ✅ Does it start with a strong action verb?
 - ✅ Is it specific (not generic)?
-- ✅ Does it answer "why should I download this?"
+- ✅ Does it answer "why should I install this?"
 - ✅ Can I pair it with a visually compelling screenshot?
 - ✅ Is it different enough from the other benefits?
 
@@ -59,11 +59,11 @@ For each benefit, ask:
 
 ## Screenshot Pairing
 
-Once you have 3 benefits, pair each with the best simulator screenshot:
+Once you have 3–5 benefits, pair each with the best app screenshot:
 
 - **Relevance**: Does the screenshot directly demonstrate this benefit?
 - **Visual impact**: Is the screen rich with content, colour, and activity?
-- **Clarity**: Can a user understand it at App Store thumbnail size?
+- **Clarity**: Can a user understand it at Google Play thumbnail size?
 - **Uniqueness**: Don't reuse the same screenshot for multiple benefits
 
 **Never use**: empty states, placeholder data, settings pages, login screens, loading indicators, or screens with sparse content.
@@ -72,10 +72,14 @@ Once you have 3 benefits, pair each with the best simulator screenshot:
 
 If no brand colour is provided, determine one automatically:
 
-1. Check the app's UI for accent/brand colours
+1. Check the app's UI for accent/brand colours (material theme, colour constants)
 2. Pick a colour that **complements** the screenshots (makes app screens pop, doesn't clash)
-3. Must be **bold and saturated** — muted/pastel gets lost in the App Store
+3. Must be **bold and saturated** — muted/pastel gets lost in Google Play
 4. Avoid white/light grey (disappears) and colours too close to the app UI's dominant colour
+
+## Feature Graphic Headline
+
+Also plan a separate **Feature Graphic headline** (5–7 words) for the 1024×500 brand asset that appears at the top of the Google Play listing. This should be the single most compelling statement about the app — not the same wording as any individual screenshot headline, but a broader brand promise.
 
 ## Output
 
@@ -89,6 +93,10 @@ Benefits:
 1. [VERB] · [DESCRIPTOR]  →  [screenshot-1.png]
 2. [VERB] · [DESCRIPTOR]  →  [screenshot-2.png]
 3. [VERB] · [DESCRIPTOR]  →  [screenshot-3.png]
+4. [VERB] · [DESCRIPTOR]  →  [screenshot-4.png]  (optional)
+5. [VERB] · [DESCRIPTOR]  →  [screenshot-5.png]  (optional)
+
+Feature Graphic Headline: [5-7 word brand headline]
 
 Brand Colour: [Name] (#HEXCODE)
 ```
