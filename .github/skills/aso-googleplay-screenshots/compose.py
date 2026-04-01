@@ -39,8 +39,8 @@ MAX_VERB_W = int(CANVAS_W * 0.88)
 
 # Prefer Roboto Black (Android/Google font); fall back to common alternatives
 _FONT_CANDIDATES = [
-    "/usr/share/fonts/truetype/roboto/hinted/RobotoCondensed-Bold.ttf",
     "/usr/share/fonts/truetype/roboto/Roboto-Black.ttf",
+    "/usr/share/fonts/truetype/roboto/hinted/Roboto-Black.ttf",
     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
     "/Library/Fonts/Roboto-Black.ttf",
     "/System/Library/Fonts/Helvetica.ttc",

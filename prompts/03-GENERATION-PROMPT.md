@@ -99,7 +99,7 @@ CALLOUT ANNOTATIONS (Act 2 — Build the Case):
 Add 2–3 pill-shaped annotation callout bubbles pointing at specific UI elements on the app screen:
 - Each callout is a pill/rounded-rectangle label containing 2–5 words
 - A short arrow/line points precisely at the relevant UI element on the phone screen
-- Use {ACCENT_COLOUR} pill colour OR white pill with dark text — pick one and be consistent
+- Use the app's accent colour (from the screenshot set palette) OR white pill with dark text — pick one and be consistent
 - Callouts must NOT overlap the headline text
 - Highlight: [CALLOUT_1], [CALLOUT_2], [CALLOUT_3]
 
