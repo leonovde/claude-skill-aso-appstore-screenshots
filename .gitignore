@@ -1,5 +1,5 @@
 .DS_Store
-.claude/settings.local.json
+.aso-state/
 screenshots/
 __pycache__/
 *.pyc

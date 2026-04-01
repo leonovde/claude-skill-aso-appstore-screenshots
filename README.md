@@ -1,6 +1,6 @@
 # ASO App Store Screenshots
 
-A Claude Code skill that generates high-converting App Store screenshots for your iOS app. It analyzes your codebase, identifies core benefits, and creates professional screenshot images using AI.
+A GitHub Copilot agent skill that generates high-converting App Store screenshots for your iOS app. It analyzes your codebase, identifies core benefits, and creates professional screenshot images using AI.
 
 ## What It Does
 
@@ -11,10 +11,21 @@ A Claude Code skill that generates high-converting App Store screenshots for you
 
 ## Installation
 
-### 1. Add the skill to Claude Code
+### 1. Add the skill to your project
+
+Copy the skill directory into your project's `.github/skills/` folder:
 
 ```bash
-claude install-skill github.com/adamlyttleapps/claude-skill-aso-appstore-screenshots
+# From your app's project root
+mkdir -p .github/skills
+cp -r path/to/aso-appstore-screenshots .github/skills/aso-appstore-screenshots
+```
+
+Or for personal use across all projects, copy to your user-level Copilot skills directory:
+
+```bash
+mkdir -p ~/.copilot/skills
+cp -r path/to/aso-appstore-screenshots ~/.copilot/skills/aso-appstore-screenshots
 ```
 
 ### 2. Install Python dependencies
@@ -33,23 +44,23 @@ The skill uses **SF Pro Display Black** for headline text. On macOS, install it 
 
 ### 4. Set up Gemini MCP (for AI enhancement)
 
-The generation phase requires [@houtini/gemini-mcp](https://www.npmjs.com/package/@houtini/gemini-mcp) to be configured as an MCP server in Claude Code:
+The generation phase requires [@houtini/gemini-mcp](https://www.npmjs.com/package/@houtini/gemini-mcp) to be configured as an MCP server:
 
 ```bash
 npm install -g @houtini/gemini-mcp
 ```
 
-Then add it to your Claude Code MCP config (`~/.claude/settings.json` or project `.mcp.json`).
+Then add it to your MCP configuration (e.g., project `.mcp.json` or your editor's global MCP settings).
 
 ## Usage
 
-From within your app's project directory, run:
+From within your app's project directory, ask GitHub Copilot to use the skill:
 
 ```
-/aso-appstore-screenshots
+Use the aso-appstore-screenshots skill to generate App Store screenshots for my app.
 ```
 
-The skill will guide you through each phase interactively. Progress is saved to Claude Code's memory system, so you can resume across conversations.
+The skill will guide you through each phase interactively. Progress is saved to `.aso-state/` files in your project directory, so you can resume across conversations.
 
 ## How It Works
 
@@ -80,15 +91,26 @@ screenshots/
 
 The `final/` folder contains App Store-ready screenshots at exact Apple dimensions (default: 1290×2796px for iPhone 6.7").
 
+### State Files
+
+Progress is persisted in `.aso-state/` at the project root:
+
+```
+.aso-state/
+  benefits.md     ← confirmed benefits, target audience, brand colour
+  pairings.md     ← screenshot assessments and benefit-to-screenshot pairings
+  generation.md   ← generation status, approved versions, final file paths
+```
+
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `SKILL.md` | The skill prompt — defines the multi-phase workflow |
-| `compose.py` | Deterministic scaffold generator (Pillow-based) |
-| `generate_frame.py` | Generates the device frame template |
-| `showcase.py` | Generates the side-by-side showcase image |
-| `assets/device_frame.png` | Pre-rendered iPhone device frame template |
+| `.github/skills/aso-appstore-screenshots/SKILL.md` | The skill prompt — defines the multi-phase workflow |
+| `.github/skills/aso-appstore-screenshots/compose.py` | Deterministic scaffold generator (Pillow-based) |
+| `.github/skills/aso-appstore-screenshots/generate_frame.py` | Generates the device frame template |
+| `.github/skills/aso-appstore-screenshots/showcase.py` | Generates the side-by-side showcase image |
+| `.github/skills/aso-appstore-screenshots/assets/device_frame.png` | Pre-rendered iPhone device frame template |
 
 ## License
 
