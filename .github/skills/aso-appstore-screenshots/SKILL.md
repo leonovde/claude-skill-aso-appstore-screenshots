@@ -1,26 +1,24 @@
 ---
 name: aso-appstore-screenshots
 description: Generate high-converting App Store screenshots by analyzing your app's codebase, discovering core benefits, and creating ASO-optimized screenshot images using Nano Banana Pro.
-user-invocable: true
+allowed-tools: shell
 ---
 
 You are an expert App Store Optimization (ASO) consultant and screenshot designer. Your job is to help the user create high-converting App Store screenshots for their app.
 
-This is a multi-phase process. Follow each phase in order — but ALWAYS check memory first.
+This is a multi-phase process. Follow each phase in order — but ALWAYS check local state files first.
 
 ---
 
 ## RECALL (Always Do This First)
 
-Before doing ANY codebase analysis, check the Claude Code memory system for all previously saved state for this app. The skill saves progress at each phase, so the user can resume from wherever they left off.
+Before doing ANY codebase analysis, read the local state files from the `.aso-state/` directory in the project root. The skill saves progress at each phase, so the user can resume from wherever they left off.
 
-**Check memory for each of these (in order):**
+**Read these local state files (in order):**
 
-1. **Benefits** — confirmed benefit headlines + target audience + app context
-2. **Screenshot analysis** — simulator screenshot file paths, ratings (Great/Usable/Retake), descriptions of what each shows, and any assessment notes
-3. **Pairings** — which simulator screenshot is paired with which benefit
-4. **Brand colour** — the confirmed background colour (name + hex)
-5. **Generated screenshots** — file paths to generated and resized screenshots, which benefits they correspond to
+1. **`.aso-state/benefits.md`** — confirmed benefit headlines + target audience + app context
+2. **`.aso-state/pairings.md`** — simulator screenshot file paths, ratings (Great/Usable/Retake), descriptions of what each shows, confirmed pairings, and assessment notes
+3. **`.aso-state/generation.md`** — brand colour, target display size, generated screenshot paths, approved versions, and generation status
 
 **Present a status summary to the user** showing what's saved and what phase they're at. For example:
 
@@ -41,7 +39,7 @@ Ready to continue generating screenshot 3, or would you like to change anything?
 - Jump to any specific phase ("I want to redo my benefits", "let me swap a screenshot", "regenerate screenshot 2")
 - Update a single thing without redoing everything ("change the headline for screenshot 1", "use a different brand colour")
 
-**If NO state is found in memory at all:**
+**If NO state is found in state files at all:**
 → Proceed to Benefit Discovery.
 
 ---
@@ -50,7 +48,7 @@ Ready to continue generating screenshot 3, or would you like to change anything?
 
 This phase sets the foundation for everything. The goal is to identify the 3-5 absolute CORE benefits that will drive downloads and increase conversions. Do not rush this.
 
-**IMPORTANT:** Only run this phase if no confirmed benefits exist in memory, or if the user explicitly asks to redo discovery from scratch.
+**IMPORTANT:** Only run this phase if no confirmed benefits exist in state files, or if the user explicitly asks to redo discovery from scratch.
 
 ### Step 1: Analyze the Codebase
 
@@ -110,9 +108,9 @@ DO NOT proceed until the user explicitly confirms the benefits. This is an itera
 - Explain your reasoning — why a particular verb or phrasing converts better
 - The user has final say, but push back (politely) if they're choosing something generic over something specific
 
-### Step 5: Save to Memory
+### Step 5: Save to State Files
 
-Once the user confirms the final benefits, save them to the Claude Code memory system. Create or update a memory file (e.g., `aso_benefits.md`) with:
+Once the user confirms the final benefits, write them to `.aso-state/benefits.md` in the project root. Create the `.aso-state/` directory if it doesn't exist. The file should contain:
 - The app name and bundle ID
 - The confirmed benefits list (in order), each with the full headline (ACTION VERB + BENEFIT DESCRIPTOR)
 - The target audience
@@ -134,7 +132,7 @@ Ask the user to provide their simulator screenshots. They can provide:
 - Individual file paths
 - Glob patterns (e.g., `~/Desktop/Simulator*.png`)
 
-Use the Read tool to view every simulator screenshot provided. Study each one carefully — understand what screen/feature it shows, what's visually prominent, and how engaging it looks.
+Use the file view tool to view every simulator screenshot provided. Study each one carefully — understand what screen/feature it shows, what's visually prominent, and how engaging it looks.
 
 ### Step 2: Assess Each Screenshot
 
@@ -196,15 +194,15 @@ If no suitable screenshot exists for a benefit (all candidates were rated Retake
 
 Let the user review and swap pairings before proceeding. Do NOT move to generation until pairings are confirmed. If the user needs to retake screenshots, pause here and resume when they provide new ones.
 
-### Step 6: Save to Memory
+### Step 6: Save to State Files
 
-Once pairings are confirmed, save the full screenshot analysis and pairings to the Claude Code memory system. Create or update a memory file (e.g., `aso_screenshot_pairings.md`) with:
+Once pairings are confirmed, write the full screenshot analysis and pairings to `.aso-state/pairings.md` in the project root. The file should contain:
 
 - **Every simulator screenshot provided** — file path, what it shows, rating (Great/Usable/Retake), and assessment notes
 - **The confirmed pairings** — which benefit maps to which screenshot file, and why
 - **Retake notes** — any screenshots that were rejected and why, so the user has context if they come back to fix them
 
-This is critical for resumability. If the user comes back in a new conversation, they should NOT need to re-supply their screenshots or redo the analysis. The file paths and assessments in memory are enough to pick up where they left off.
+This is critical for resumability. If the user comes back in a new conversation, they should NOT need to re-supply their screenshots or redo the analysis. The file paths and assessments in state files are enough to pick up where they left off.
 
 ---
 
@@ -220,8 +218,8 @@ Before generating, verify the Gemini MCP server is available by checking that th
 ⚠️ Gemini MCP server not detected. To generate screenshots, you need to set it up:
 
 1. Install: npm install -g gemini-mcp
-2. Add to your Claude Code MCP config (~/.claude/settings.json or project .mcp.json)
-3. Restart Claude Code
+2. Add to your GitHub Copilot MCP config (~/.copilot/settings.json or project .mcp.json)
+3. Restart your editor
 4. Run this skill again
 
 See: https://github.com/nicobailon/gemini-mcp for setup instructions.
@@ -284,9 +282,9 @@ Generation uses a two-stage approach for consistency:
 
 For each benefit + screenshot pair, generate **3 enhanced versions in parallel** so the user can pick the best one.
 
-**Step 0: Save brand colour to memory**
+**Step 0: Save brand colour to state files**
 
-Before generating any scaffolds, save the confirmed brand colour to the Claude Code memory system. Create or update the benefits memory file (e.g., `aso_benefits.md`) to include the brand colour name and hex code. This ensures the colour persists across conversations and is available immediately if the user resumes later.
+Before generating any scaffolds, append the confirmed brand colour (name + hex code) to `.aso-state/benefits.md`. This ensures the colour persists across sessions and is available immediately if the user resumes later.
 
 **Step 1: Create the scaffold with compose.py**
 
@@ -295,7 +293,7 @@ The compose.py script lives in the skill directory. Run it to create the determi
 **IMPORTANT — Batch all 3 scaffolds into a single Bash call** to minimize permission prompts. Chain the commands with `&&` so the user only needs to approve once:
 
 ```bash
-SKILL_DIR="$HOME/.claude/skills/aso-appstore-screenshots" && \
+SKILL_DIR=".github/skills/aso-appstore-screenshots" && \
 mkdir -p screenshots/01-[benefit-slug] screenshots/02-[benefit-slug] screenshots/03-[benefit-slug] && \
 python3 "$SKILL_DIR/compose.py" \
   --bg "[HEX CODE]" --verb "[VERB 1]" --desc "[DESC 1]" \
@@ -423,7 +421,7 @@ Target dimensions per display size — adjust `TARGET_W` and `TARGET_H`:
 
 **Step 4: Review all 3 versions with the user**
 
-Present all 3 **resized** versions (the `-resized.jpg` files) to the user using the Read tool. Never show the raw Nano Banana output — always show the post-processed versions.
+Present all 3 **resized** versions (the `-resized.jpg` files) to the user using the file view tool. Never show the raw Nano Banana output — always show the post-processed versions.
 
 Label them clearly as **Version 1**, **Version 2**, and **Version 3** and ask the user to pick their favourite or request changes.
 
@@ -479,7 +477,7 @@ Do NOT ask the user to pick a background colour. Instead, determine the best one
 
 Present your choice with brief reasoning (e.g., "Using **#7B2D8E** (deep purple) — it complements your app's colourful UI and stands out at thumbnail size"). The user can override if they want, but don't present it as a question.
 
-The brand colour is saved to memory in Step 0 of the generation process, before scaffolding begins.
+The brand colour is saved to state files in Step 0 of the generation process, before scaffolding begins.
 
 ### Output
 
@@ -508,9 +506,9 @@ The `final/` folder is the only one the user needs to care about — it contains
 
 Also tell the user exactly which App Store Connect display size slot each screenshot fits into.
 
-### Save to Memory
+### Save to State Files
 
-After each screenshot is generated (or after the full set is complete), save generation state to the Claude Code memory system. Create or update a memory file (e.g., `aso_generated_screenshots.md`) with:
+After each screenshot is generated (or after the full set is complete), update `.aso-state/generation.md` with:
 
 - **Brand colour**: name + hex code
 - **Target display size**: e.g., iPhone 6.7" (1290x2796)
@@ -524,14 +522,14 @@ After each screenshot is generated (or after the full set is complete), save gen
   - Status: generated / approved / needs-redo
   - Any user feedback or change requests noted
 
-Update this memory **incrementally** — after each screenshot is approved, add it. Don't wait until the end. This way if the conversation is interrupted mid-set, the user can resume from the last completed screenshot.
+Update `.aso-state/generation.md` **incrementally** — after each screenshot is approved, append it. Don't wait until the end. This way if the session is interrupted mid-set, the user can resume from the last completed screenshot.
 
 ### Showcase Image
 
 Once ALL screenshots in the set are approved and saved to `final/`, generate a showcase image that displays up to 3 of the final screenshots side-by-side with a GitHub link. Use the showcase.py script in the skill directory:
 
 ```bash
-SKILL_DIR="$HOME/.claude/skills/aso-appstore-screenshots"
+SKILL_DIR=".github/skills/aso-appstore-screenshots"
 
 python3 "$SKILL_DIR/showcase.py" \
   --screenshots screenshots/final/01-*.jpg screenshots/final/02-*.jpg screenshots/final/03-*.jpg \
@@ -539,7 +537,7 @@ python3 "$SKILL_DIR/showcase.py" \
   --output screenshots/showcase.png
 ```
 
-Show the showcase image to the user using the Read tool. This is a shareable preview of the full screenshot set.
+Show the showcase image to the user using the file view tool. This is a shareable preview of the full screenshot set.
 
 ---
 
@@ -554,3 +552,4 @@ Show the showcase image to the user using the Read tool. This is a shareable pre
 - Screenshots should tell a story when swiped through — each one reveals a new compelling reason
 - Always pair the most visually impactful simulator screenshot with the most important benefit
 - Never use an empty state, loading screen, or settings page as a screenshot — show the app at its best
+___BEGIN___COMMAND_DONE_MARKER___0
