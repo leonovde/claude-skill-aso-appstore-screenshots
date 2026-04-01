@@ -1,115 +1,123 @@
 # Screenshot Design Specification
 
-> The exact visual rules every generated App Store screenshot must follow.
+> The exact visual rules every generated Google Play Store screenshot must follow.
 > Referenced by: [03-GENERATION-PROMPT.md](03-GENERATION-PROMPT.md) · [04-QUALITY-CHECKLIST.md](04-QUALITY-CHECKLIST.md)
 
 ## Canvas Dimensions
 
-App Store Connect requires **exact** pixel dimensions — it rejects anything else.
+Google Play uses native **9:16 aspect ratio** — no post-processing crop is needed.
 
-| Display | Portrait | Landscape |
-|---------|----------|-----------|
-| iPhone 6.5" | 1242 × 2688 px | 2688 × 1242 px |
-| **iPhone 6.7" (default)** | **1290 × 2796 px** | 2796 × 1290 px |
-| iPhone 6.9" | 1320 × 2868 px | 2868 × 1320 px |
+| Format | Dimensions | Notes |
+|--------|-----------|-------|
+| **Phone portrait (default)** | **1080 × 1920 px** | Standard 9:16 |
+| Phone landscape | 1920 × 1080 px | 16:9 |
+| Feature Graphic | 1024 × 500 px | Required for every listing |
+| 7-inch tablet | 1024 × 600 px | Optional |
+| 10-inch tablet | 1280 × 800 px | Optional |
 
-**Default target: 1290 × 2796 px** (iPhone 6.7")
+**Default target: 1080 × 1920 px** (phone portrait)
 
-> **Aspect ratio note**: Apple's dimensions (~0.461 ratio) are narrower than standard 9:16 (0.5625). If your image generator outputs 9:16, you must **crop the sides** and resize to exact Apple dimensions. Crop equally from left and right edges, preserving the top edge.
+> **No crop step needed**: compose.py outputs exactly 1080×1920. Unlike Apple's narrower ratio, Google Play uses native 9:16 so images are ready to upload immediately.
+
+Minimum: 320px on the shortest side. Maximum: 3840px on the longest side.
+Format: JPG or 24-bit PNG — **no alpha/transparency channel**.
+Minimum 2 screenshots, recommended 6–8. All must share the same orientation.
 
 ## Layout Anatomy
 
 ```
 ┌──────────────────────────────┐
-│         top padding          │  ← 200px from top
+│         top padding          │  ← 60px from top
 │                              │
 │      ████ ACTION VERB ████   │  ← Line 1: biggest, boldest text
 │       BENEFIT DESCRIPTOR     │  ← Line 2: smaller but still bold
-│                              │
-│     ┌────────────────────┐   │  ← Device frame starts ~720px from top
+│                              │  ← Headline zone: top ~15% (~288px)
+│     ┌────────────────────┐   │
+│     │ ○ (camera hole)    │   │  ← Pixel device frame starts at ~290px
 │     │  ┌──────────────┐  │   │
 │     │  │              │  │   │
 │     │  │  App Screen  │  │   │
-│     │  │  (simulator  │  │   │
+│     │  │  (emulator   │  │   │
 │     │  │  screenshot) │  │   │
 │     │  │              │  │   │
-│     │  │              │  │   │
-│     └──┴──────────────┴──┘   │  ← Device bleeds off bottom edge
+│     │  └──────────────┘  │   │
+│     └────────────────────┘   │  ← Device bottom: ~80px from canvas bottom
+│         breathing room       │  ← Device floats — does NOT bleed off edge
 └──────────────────────────────┘
-         1290 × 2796 px
+         1080 × 1920 px
 ```
+
+**Key difference from iOS**: The device frame floats with breathing room on all sides. It does NOT bleed off the bottom edge. This is the correct Google Play aesthetic.
 
 ## Typography
 
 | Element | Size | Weight | Colour | Alignment |
 |---------|------|--------|--------|-----------|
-| **Action verb** (Line 1) | 256px → 150px auto-fit | Black / Heavy | White | Centre |
-| **Benefit descriptor** (Line 2) | 124px fixed | Black / Heavy | White | Centre |
+| **Action verb** (Line 1) | 200px → 110px auto-fit | Black / Heavy | White | Centre |
+| **Benefit descriptor** (Line 2) | 90px fixed | Black / Heavy | White | Centre |
 
-- **Font**: SF Pro Display Black (or any heavy/black sans-serif: Inter Black, Montserrat Black, etc.)
+- **Font**: Roboto Black (Google's product font) or any heavy/black sans-serif (Inter Black, Montserrat Black, etc.)
 - **ALL CAPS** for both lines
-- **Verb auto-sizing**: starts at 256px, shrinks in 4px steps down to 150px until it fits within 92% of canvas width (1186px)
-- **Descriptor word-wrap**: wraps at 92% canvas width (1186px), 24px gap between wrapped lines
-- **Gap between verb and descriptor**: 20px
-- **Text starts at 200px** from the top of the canvas
-
-### ⚠️ Horizontal Safe Zone (Critical)
-
-All text **must** stay within the centre ~70% of canvas width. Leave ≥15% padding on each side. If generating at 9:16 and cropping to Apple's narrower ratio, **any text near the edges WILL be cut off**. Keep headlines short or break across lines rather than extending to edges.
+- **Verb auto-sizing**: starts at 200px, shrinks in 4px steps down to 110px until it fits within 88% of canvas width (950px)
+- **Descriptor word-wrap**: wraps at 88% canvas width (950px), 18px gap between wrapped lines
+- **Gap between verb and descriptor**: 16px
+- **Text starts at 60px** from the top of the canvas (top ~15% zone)
 
 ## Device Frame
 
-- **Modern iPhone mockup** (black frame, Dynamic Island)
-- **Width**: ~80% of canvas (1030px on 1290px canvas)
-- **Position**: centred horizontally, top at ~720px from canvas top
-- **Bottom bleed**: the device intentionally extends past the bottom canvas edge — the phone is cropped, not fully visible. This creates a dynamic, modern feel.
-- **Bezel**: 15px border between device edge and screen
-- **Screen corner radius**: 62px rounded corners
-- **Device corner radius**: 77px
-- **Dynamic Island**: 130 × 38px, centred, 14px below screen top
-- **Colours**: body RGB(30,30,30), inner bevel RGB(20,20,20), buttons RGB(25,25,25), Dynamic Island black
+- **Pixel phone mockup** (black frame, small centred camera hole-punch at top — NOT a Dynamic Island or notch)
+- **Width**: ~80% of canvas (860px on 1080px canvas)
+- **Height**: fully contained within canvas (~1570px frame height)
+- **Position**: centred horizontally, top at ~290px from canvas top
+- **Bottom clearance**: ~80px breathing room between device bottom and canvas bottom
+- **Device floats**: visible breathing room on all four sides — NO bottom bleed
+- **Bezel**: 14px border between device edge and screen
+- **Screen corner radius**: 50px rounded corners
+- **Device corner radius**: 60px
+- **Camera hole-punch**: 18px radius circle, centred horizontally, 22px below screen top
+- **Colours**: body RGB(30,30,30), inner bevel RGB(20,20,20), buttons RGB(25,25,25), camera black
+- **No silent switch** — Android/Pixel devices do not have one
 
 ## Background
 
 - **Solid bold brand colour** fills entire canvas — same colour on ALL screenshots in the set
-- **No glows, gradients, radial patterns, or light effects** — keep it flat and bold
-- Must be saturated and vibrant (stops the scroll in the App Store)
+- Subtle same-hue gradient is acceptable (e.g., slightly darker at bottom) but keep it restrained
+- **No harsh glows, radial patterns, or strong light effects** — keep it clean and bold
+- Must be saturated and vibrant (stops the scroll in Google Play)
 - High contrast with white text
 
-## Breakout Elements (Optional)
+## Callout Annotations (Act 2 Screenshots)
 
-Breakout elements make screenshots dynamic but must be used with restraint. **A clean screenshot with no breakout is better than a forced one.**
+For screenshots 2–4 ("Build the Case"), add 2–3 annotation callout bubbles:
 
-### Primary — Feature Zoom-Out (only when relevant)
+- **Shape**: pill/rounded-rectangle label
+- **Size**: fits 2–5 words comfortably
+- **Arrow/line**: short pointer from the pill to the specific UI element it describes
+- **Colour**: app's accent colour, OR white pill with dark text, OR dark pill with white text — pick one style and use it consistently
+- **Position**: overlaid on the app screen in the device frame; never overlapping the headline
+- **Content**: concise label (e.g., "Real-time prices", "One-tap scan", "Offline mode")
+- **Max per frame**: 3 callouts
 
-- Only use when there is an **obvious, visually compelling UI panel** on the app screen that directly relates to the benefit headline
-- Must be a **complete card/section/panel** — never individual buttons, icons, or small elements
-- **Same vertical position and orientation** as on the app screen — NO rotation or angling
-- **Scaled UP significantly** — much larger than on-screen size, extending beyond BOTH left and right edges of the device frame
-- **Overlaps the phone bezel** on both sides, expanding to nearly full canvas width
-- **Soft drop shadow** beneath it to create depth/floating effect
-- Content must match the app — same colours, style, text. Do NOT invent new elements.
+## Feature Graphic
 
-### Secondary — Supporting Elements (0-2, optional)
+Required for every Google Play listing. Displayed at the top of the store page.
 
-- Small creative additions (contextual icons, subtle cues, floating UI elements) that reinforce the benefit
-- Must NOT compete with the primary breakout for attention
-- Must be directly relevant to the benefit headline
-- Less is more — every element must earn its place
-
-### What to Avoid
-
-- Random decorative elements unrelated to the benefit
-- Excessive particles, sparkles, or effects
-- Cluttered compositions — polished and intentional, not busy
-- Any text other than the headline (no watermarks, no App Store chrome)
+| Attribute | Value |
+|-----------|-------|
+| Dimensions | 1024 × 500 px (exactly) |
+| Format | JPG or 24-bit PNG, no alpha |
+| Content | App icon + bold headline (5–7 words) + background colour |
+| No UI screenshots | Brand/marketing asset only |
+| Video thumbnail | Doubles as thumbnail if a promo video exists |
 
 ## Set-Wide Consistency Rules
 
 When generating multiple screenshots for the same app:
 
-1. **Same background colour** on every screenshot
-2. **Same device frame rendering** — identical phone mockup, same reflections, shadows, size
+1. **Same background colour** (or same gradient style) on every screenshot
+2. **Same device frame rendering** — identical Pixel mockup, same reflections, shadows, size
 3. **Same text treatment** — identical font, weight, size, positioning
-4. **Same visual style** — if one has accent shapes, all have similar accent shapes
-5. **Same level of polish** — when placed side-by-side, they look like a cohesive professional set
+4. **Same callout style** — if using annotation bubbles, same pill style and colour across Act 2 frames
+5. **Same visual style** — consistent polish level when placed side-by-side
+6. **Same device model** — do not mix Pixel models across the set
+7. **Same orientation** — all portrait or all landscape (cannot mix)

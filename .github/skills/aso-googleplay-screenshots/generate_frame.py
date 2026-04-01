@@ -1,22 +1,29 @@
 #!/usr/bin/env python3
 """
-Generate iPhone device frame template PNG.
+Generate Pixel phone device frame template PNG for Google Play screenshots.
 Output: assets/device_frame.png — standalone device image (not positioned on canvas).
-compose.py positions this dynamically based on text height.
+compose.py positions this dynamically based on the layout zones.
+
+Design: current-generation Pixel-style phone —
+  - Clean rounded corners (no Dynamic Island)
+  - Small centred camera hole-punch at top of screen
+  - Power button (right side) and volume buttons (left side only — no silent switch)
+  - Device floats fully within the canvas (no bottom bleed)
 """
 
 from PIL import Image, ImageDraw, ImageChops
 
 # ── Device dimensions ───────────────────────────────────────────────
-# Width is ~80% of 1290 canvas, matching reference screenshots
-DEVICE_W = 1030
-DEVICE_H = 2800           # tall enough to bleed off any canvas
-DEVICE_CORNER_R = 77
-BEZEL = 15
-SCREEN_CORNER_R = 62
-DI_W = 130               # Dynamic Island width
-DI_H = 38                # Dynamic Island height
-DI_TOP = 14              # offset from top of screen
+# Width sized to ~80% of 1080 canvas
+DEVICE_W = 860
+DEVICE_H = 1570          # fully contained; canvas handles remaining space
+DEVICE_CORNER_R = 60
+BEZEL = 14
+SCREEN_CORNER_R = 50
+
+# Camera hole-punch (top centre of screen — Android style)
+CAM_R = 18               # radius of camera circle
+CAM_TOP_OFFSET = 22      # distance from screen top to camera centre
 
 SCREEN_W = DEVICE_W - 2 * BEZEL
 SCREEN_H = DEVICE_H - 2 * BEZEL
@@ -26,7 +33,7 @@ def generate():
     frame = Image.new("RGBA", (DEVICE_W, DEVICE_H), (0, 0, 0, 0))
     fd = ImageDraw.Draw(frame)
 
-    # ── Device body (dark grey outer, darker inner) ─────────────────
+    # ── Device body ─────────────────────────────────────────────────
     fd.rounded_rectangle(
         [0, 0, DEVICE_W - 1, DEVICE_H - 1],
         radius=DEVICE_CORNER_R,
@@ -50,45 +57,41 @@ def generate():
     )
     frame.putalpha(ImageChops.multiply(frame.getchannel("A"), cutout))
 
-    # ── Dynamic Island ──────────────────────────────────────────────
-    di_x = (DEVICE_W - DI_W) // 2
-    di_y = screen_y + DI_TOP
-    ImageDraw.Draw(frame).rounded_rectangle(
-        [di_x, di_y, di_x + DI_W, di_y + DI_H],
-        radius=DI_H // 2,
+    # ── Camera hole-punch (centred, top of screen) ───────────────────
+    cam_cx = DEVICE_W // 2
+    cam_cy = screen_y + CAM_TOP_OFFSET
+    ImageDraw.Draw(frame).ellipse(
+        [cam_cx - CAM_R, cam_cy - CAM_R, cam_cx + CAM_R, cam_cy + CAM_R],
         fill=(0, 0, 0, 255),
     )
 
-    # ── Side buttons ────────────────────────────────────────────────
+    # ── Side buttons (Pixel-style — no silent switch) ────────────────
     btn_color = (25, 25, 25, 255)
     fd2 = ImageDraw.Draw(frame)
 
     # Power button (right side)
     fd2.rounded_rectangle(
-        [DEVICE_W, 340, DEVICE_W + 4, 460],
+        [DEVICE_W, 280, DEVICE_W + 4, 420],
         radius=2, fill=btn_color,
     )
     # Volume up (left side)
     fd2.rounded_rectangle(
-        [-4, 280, 0, 360],
+        [-4, 230, 0, 340],
         radius=2, fill=btn_color,
     )
     # Volume down (left side)
     fd2.rounded_rectangle(
-        [-4, 380, 0, 460],
+        [-4, 360, 0, 470],
         radius=2, fill=btn_color,
     )
-    # Silent switch (left side)
-    fd2.rounded_rectangle(
-        [-4, 180, 0, 220],
-        radius=2, fill=btn_color,
-    )
+    # No silent switch — Android/Pixel does not have one
 
     out = "assets/device_frame.png"
     frame.save(out, "PNG")
     print(f"✓ {out} ({DEVICE_W}×{DEVICE_H})")
     print(f"  BEZEL={BEZEL}, SCREEN_W={SCREEN_W}, SCREEN_H={SCREEN_H}")
     print(f"  SCREEN_CORNER_R={SCREEN_CORNER_R}")
+    print(f"  Camera hole-punch: centre ({DEVICE_W // 2}, {BEZEL + CAM_TOP_OFFSET}), r={CAM_R}")
 
 
 if __name__ == "__main__":
